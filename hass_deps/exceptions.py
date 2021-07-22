@@ -1,0 +1,2 @@
+class ArtifactNotFoundException(Exception):
+    pass
