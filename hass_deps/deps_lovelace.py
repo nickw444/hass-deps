@@ -2,7 +2,7 @@ import json
 import os
 import shutil
 import subprocess
-from typing import Optional
+from typing import Optional, Dict, Any, cast, List
 from urllib.parse import urlparse
 
 import requests
@@ -12,7 +12,9 @@ from .exceptions import ArtifactNotFoundException
 from .source import find_source_artifacts
 
 
-def get_github_release(dependency: Dependency, tag_name: Optional[str]):
+def get_github_release(
+    dependency: Dependency, tag_name: Optional[str]
+) -> Optional[Dict[str, Any]]:
     github_slug = dependency.get_github_slug()
     if github_slug is None:
         # Cannot check Github if the dependency doesn't come from Github!
@@ -24,10 +26,12 @@ def get_github_release(dependency: Dependency, tag_name: Optional[str]):
 
     resp = requests.get(url)
     resp.raise_for_status()
-    return resp.json()
+    return cast(Dict[str, Any], resp.json())
 
 
-def find_github_releases_artifacts(dependency: Dependency, release_data):
+def find_github_releases_artifacts(
+    dependency: Dependency, release_data: Dict[str, Any]
+) -> List[str]:
     artifacts = []
     for asset in release_data["assets"]:
         if asset["name"].endswith(".js") or asset["name"].endswith(".map"):
@@ -36,14 +40,17 @@ def find_github_releases_artifacts(dependency: Dependency, release_data):
     return artifacts
 
 
-def get_lovelace_destination_path(config_root_path: str, name: str):
+def get_lovelace_destination_path(config_root_path: str, name: str) -> str:
     return os.path.join(config_root_path, "www", name)
 
 
 def install_lovelace_release_dependency(
     config_root_path: str, dependency: Dependency, tag_name: Optional[str]
-):
+) -> LockedDependency:
     release_data = get_github_release(dependency, tag_name=tag_name)
+    if release_data is None:
+        raise ArtifactNotFoundException()
+
     github_artifacts = find_github_releases_artifacts(dependency, release_data)
     if len(github_artifacts):
         destination_path = get_lovelace_destination_path(
@@ -80,7 +87,7 @@ def install_lovelace_release_dependency(
 def install_lovelace_dependency(
     config_root_path: str,
     dependency: Dependency,
-    cloned_path: Optional[str],
+    cloned_path: str,
 ) -> LockedDependency:
     hacs_json_path = os.path.join(cloned_path, "hacs.json")
     if os.path.exists(hacs_json_path):

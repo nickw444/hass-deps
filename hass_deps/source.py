@@ -2,14 +2,16 @@ import glob
 import os
 import subprocess
 import tempfile
-from typing import Literal
+from typing import List, Optional, Any
 
 from .dependency import Dependency
 
 
 def find_source_artifacts(
-    cloned_path: str, filename_hint: str = None, filename: str = None
-):
+    cloned_path: str,
+    filename_hint: Optional[str] = None,
+    filename: Optional[str] = None,
+) -> List[str]:
     artifacts = []
     for artifact in glob.glob(
         os.path.join(cloned_path, "**/{}".format(filename_hint)), recursive=True
@@ -19,7 +21,9 @@ def find_source_artifacts(
     return artifacts
 
 
-def checkout_dependency_source(dependency: Dependency, ref: str = None):
+def checkout_dependency_source(
+    dependency: Dependency, ref: Optional[str] = None
+) -> tempfile.TemporaryDirectory[Any]:
     tmpdir = tempfile.TemporaryDirectory(suffix="-" + dependency.get_name())
     subprocess.run(
         ["git", "clone", dependency.source, tmpdir.name],
@@ -35,18 +39,3 @@ def checkout_dependency_source(dependency: Dependency, ref: str = None):
         )
 
     return tmpdir
-
-
-def get_destination_path(
-    config_root_path: str,
-    dependency_name: str,
-    dependency_type: Literal["lovelace", "core"],
-):
-    if dependency_type == "lovelace":
-        directory = "www"
-    elif dependency_type == "core":
-        directory = "custom_components"
-    else:
-        raise AssertionError()
-
-    return os.path.join(config_root_path, directory, dependency_name)

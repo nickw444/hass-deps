@@ -3,11 +3,11 @@ import os
 from collections import OrderedDict
 from hashlib import sha1
 from os.path import basename, splitext
-from typing import List, NamedTuple, Literal
+from typing import List, NamedTuple, Literal, Union, Dict
 from typing import Optional
 from urllib.parse import urlparse
 
-from ruamel.yaml import YAML
+from ruamel.yaml import YAML  # type: ignore
 
 yaml = YAML()
 
@@ -17,20 +17,22 @@ class Dependency(NamedTuple):
     root_is_custom_components: bool
     include: Optional[List[str]]
 
-    def get_name(self):
+    def get_name(self) -> str:
         name, _ = splitext(basename(urlparse(self.source).path))
         return name
 
-    def get_src_hash(self):
+    def get_src_hash(self) -> str:
         return sha1(self.source.encode("utf8")).hexdigest()[:8]
 
-    def is_github(self):
+    def is_github(self) -> bool:
         return urlparse(self.source).hostname == "github.com"
 
-    def get_github_slug(self):
+    def get_github_slug(self) -> Optional[str]:
         parsed = urlparse(self.source)
         if parsed.hostname == "github.com":
             return parsed.path[1:].rstrip(".git")
+
+        return None
 
 
 class LockedDependency(NamedTuple):
@@ -42,7 +44,7 @@ class LockedDependency(NamedTuple):
     # (only applicable when type is core)
     components: Optional[List[str]]
 
-    def get_name(self):
+    def get_name(self) -> str:
         name, _ = splitext(basename(urlparse(self.source).path))
         return name
 
@@ -61,10 +63,12 @@ def load_dependencies(path: str) -> OrderedDict[str, Dependency]:
     return dependencies
 
 
-def write_dependencies(path: str, dependencies: OrderedDict[str, Dependency]):
+def write_dependencies(path: str, dependencies: OrderedDict[str, Dependency]) -> None:
     dumpable = []
     for source, dependency in dependencies.items():
-        dumpable_dep = dependency.source
+        dumpable_dep: Union[
+            str, Dict[str, Union[str, bool, List[str]]]
+        ] = dependency.source
 
         if dependency.include is not None or dependency.root_is_custom_components:
             # Has more advanced config, dump as an object
@@ -101,8 +105,8 @@ def load_locked_dependencies(path: str) -> OrderedDict[str, LockedDependency]:
 
 def write_locked_dependencies(
     path: str, locked_dependencies: OrderedDict[str, LockedDependency]
-):
-    dumpable = {}
+) -> None:
+    dumpable: Dict[str, Dict[str, Union[str, bool, List[str]]]] = {}
     for source, lock_info in locked_dependencies.items():
         dumpable[source] = {
             "version": lock_info.version,
@@ -126,13 +130,13 @@ class PackageInfo(NamedTuple):
 def load_package_info(package_dir: str) -> Optional[PackageInfo]:
     package_info_path = os.path.join(package_dir, ".hass-deps")
     if not os.path.exists(package_info_path):
-        return
+        return None
 
     with open(package_info_path) as f:
         data = json.load(f)
         return PackageInfo(version=data["version"])
 
 
-def write_package_info(package_dir: str, info: PackageInfo):
+def write_package_info(package_dir: str, info: PackageInfo) -> None:
     with open(os.path.join(package_dir, ".hass-deps"), "w") as f:
         json.dump({"version": info.version}, f)

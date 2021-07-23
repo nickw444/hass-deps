@@ -21,7 +21,7 @@ def install_dependency(
     dependency: Dependency,
     lock_info: Optional[LockedDependency],
     force: bool = False,
-):
+) -> LockedDependency:
     click.echo(click.style(f"Installing: {dependency.get_name()} ", fg="green"))
 
     if not force and lock_info is not None:
@@ -37,6 +37,9 @@ def install_dependency(
                 return lock_info
 
         elif lock_info.type == "core":
+            if lock_info.components is None:
+                raise Exception("Expected components to be defined")
+
             for component in lock_info.components:
                 installed_path = get_core_destination_path(config_root_path, component)
                 package_info = load_package_info(installed_path)

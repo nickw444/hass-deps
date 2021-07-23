@@ -15,13 +15,13 @@ def is_core_dependency(dependency: Dependency, cloned_path: str) -> bool:
     return os.path.exists(custom_components_path)
 
 
-def get_core_destination_path(config_root_path: str, name: str):
+def get_core_destination_path(config_root_path: str, name: str) -> str:
     return os.path.join(config_root_path, "custom_components", name)
 
 
 def install_core_dependency(
     config_root_path: str, dependency: Dependency, cloned_path: str
-):
+) -> LockedDependency:
     custom_components_path = os.path.join(cloned_path, "custom_components")
     if dependency.root_is_custom_components:
         custom_components_path = cloned_path

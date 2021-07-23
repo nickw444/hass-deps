@@ -29,7 +29,7 @@ class TypedObj:
 @click.group()
 @click.pass_context
 @click.option("--config-dir", type=click.Path(exists=True), default="./")
-def cli(ctx, config_dir: str):
+def cli(ctx: click.Context, config_dir: str) -> None:
     dependencies_path = os.path.join(config_dir, "hass-deps.yaml")
     dependencies_lock_path = os.path.join(config_dir, "hass-deps.lock")
 
@@ -46,10 +46,10 @@ def cli(ctx, config_dir: str):
     if os.path.exists(dependencies_lock_path):
         locked_dependencies = load_locked_dependencies(dependencies_lock_path)
 
-    def write_dependencies_():
+    def write_dependencies_() -> None:
         write_dependencies(dependencies_path, ctx.obj.dependencies)
 
-    def write_locked_dependencies_():
+    def write_locked_dependencies_() -> None:
         write_locked_dependencies(dependencies_lock_path, ctx.obj.locked_dependencies)
 
     ctx.obj = TypedObj(
@@ -63,7 +63,7 @@ def cli(ctx, config_dir: str):
 
 @cli.command(help="Initialize hass-deps in the specified config directory")
 @click.pass_obj
-def init(obj: TypedObj):
+def init(obj: TypedObj) -> None:
     obj.write_dependencies()
 
 
@@ -71,7 +71,7 @@ def init(obj: TypedObj):
 @click.pass_obj
 @click.option("--save/--no-save", type=bool, default=True)
 @click.argument("dependency")
-def add(obj: TypedObj, dependency: str, save: bool):
+def add(obj: TypedObj, dependency: str, save: bool) -> None:
     if dependency in obj.dependencies:
         click.echo(f"{dependency} is already installed")
         raise click.exceptions.Exit(1)
@@ -95,7 +95,7 @@ def add(obj: TypedObj, dependency: str, save: bool):
     default=False,
     is_flag=True,
 )
-def install(obj: TypedObj, force: bool):
+def install(obj: TypedObj, force: bool) -> None:
     should_write_locked_dependencies = False
 
     for dependency in obj.dependencies.values():
@@ -116,7 +116,7 @@ def install(obj: TypedObj, force: bool):
 @cli.command(help="Upgrade dependencies to the latest version/release")
 @click.pass_obj
 @click.argument("dependencies", nargs=-1, metavar="dependency")
-def upgrade(obj: TypedObj, dependencies: List[str]):
+def upgrade(obj: TypedObj, dependencies: List[str]) -> None:
     for dependency in dependencies:
         if dependency not in obj.dependencies:
             click.echo(f"{dependency} is not installed.")
@@ -124,7 +124,7 @@ def upgrade(obj: TypedObj, dependencies: List[str]):
 
     if len(dependencies) == 0:
         # No dependencies specified, upgrade all!
-        dependencies = obj.dependencies.keys()
+        dependencies = list(obj.dependencies.keys())
 
     for dep_source in dependencies:
         dep = obj.dependencies[dep_source]
