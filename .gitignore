@@ -2,6 +2,8 @@
 *.egg-info
 Pipfile
 Pipfile.lock
+dist
+VERSION
 
 test/fixtures/demo-config/www
 test/fixtures/demo-config/custom_components
