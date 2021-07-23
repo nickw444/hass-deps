@@ -1,7 +1,5 @@
 .idea
 *.egg-info
-Pipfile
-Pipfile.lock
 dist
 VERSION
 
