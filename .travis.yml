@@ -9,8 +9,6 @@ script:
   - flake8 hass_deps
   - black --check hass_deps
   - mypy --strict hass_deps
-before_deploy:
-  - git describe --tags > VERSION
 deploy:
   provider: pypi
   skip_cleanup: true
