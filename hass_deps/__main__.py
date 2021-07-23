@@ -30,7 +30,11 @@ def cli(ctx, config_dir: str):
     dependencies_lock_path = os.path.join(config_dir, "hass-deps.lock")
 
     dependencies = OrderedDict()
-    if os.path.exists(dependencies_path):
+    if ctx.invoked_subcommand != 'init':
+        if not os.path.exists(dependencies_path):
+            click.echo(
+                "'hass-deps.yaml' not found. Try running 'hass-deps init' first.")
+            raise click.exceptions.Exit(1)
         dependencies = load_dependencies(dependencies_path)
 
     locked_dependencies = OrderedDict()
@@ -54,10 +58,21 @@ def cli(ctx, config_dir: str):
     )
 
 
+@cli.command(help="Initialize hass-deps in the specified config directory")
+@click.pass_obj
+def init(obj: TypedObj):
+    obj.write_dependencies()
+
+
 @cli.command(help="Add a new dependency")
 @click.pass_obj
+@click.option('--save/--no-save', type=bool, default=True)
 @click.argument("dependency")
-def add(obj: TypedObj, dependency: str):
+def add(obj: TypedObj, dependency: str, save: bool):
+    if dependency in obj.dependencies:
+        click.echo(f"{dependency} is already installed")
+        raise click.exceptions.Exit(1)
+
     dep = Dependency(
         source=dependency,
         root_is_custom_components=False,
@@ -68,8 +83,9 @@ def add(obj: TypedObj, dependency: str):
     obj.dependencies[dependency] = dep
     obj.locked_dependencies[dependency] = lock_info
 
-    obj.write_dependencies()
-    obj.write_locked_dependencies()
+    if save:
+        obj.write_dependencies()
+        obj.write_locked_dependencies()
 
 
 @cli.command(help="Install dependencies from hass-deps.yaml")
@@ -97,12 +113,16 @@ def install(obj: TypedObj, force: bool):
 @click.pass_obj
 @click.argument('dependencies', nargs=-1, metavar='dependency')
 def upgrade(obj: TypedObj, dependencies: List[str]):
+    for dependency in dependencies:
+        if dependency not in obj.dependencies:
+            click.echo(f"{dependency} is not installed.")
+            raise click.exceptions.Exit(1)
+
     if len(dependencies) == 0:
         # No dependencies specified, upgrade all!
         dependencies = obj.dependencies.keys()
 
     for dep_source in dependencies:
-        # TODO: Eagerly error for non installed dependency in list.
         dep = obj.dependencies[dep_source]
         lock_info = install_dependency(obj.config_dir, dep, lock_info=None)
         obj.locked_dependencies[dep_source] = lock_info
