@@ -54,6 +54,14 @@ hass-deps upgrade <dependency source>
 hass-deps upgrade
 ```
 
-## Why not HACS?
-TODO
+## Why not [HACS](https://hacs.xyz/)?
 
+[HACS](https://hacs.xyz/) is a great plugin for Home Assistant, particularly for less tech-savvy users who might not be familiar connecting to a remote machine via SSH or Samba to install a new dependency. 
+
+From my limited time using HACS I was disapointed there was no way to "check in" the set of installed dependencies, other than taking a snapshot of the Home Assistant configuration.
+
+Due to this, my config validation pipeline in CI failed (as it had no way to know which dependencies were installed). 
+
+Furthermore, the recent security advisory for HACS came to light, which further made me consider whether I wanted such a fully functional addon part of my Home Assistant environment. 
+
+Using `hass-deps`, references to your dependencies can be checked in to version control, and reinstalled in a reproducible (due to the lockfile functionality in `hass-heps`)
