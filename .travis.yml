@@ -1,20 +1,16 @@
 language: python
 python:
   - '3.9'
-
 install:
   - pip install pipenv
   - pipenv install --system --dev
   - pip install .
-
 script:
   - flake8 hass_deps
   - black --check hass_deps
   - mypy --strict hass_deps
-
 before_deploy:
   - git describe --tags > VERSION
-
 deploy:
   provider: pypi
   skip_cleanup: true
@@ -23,6 +19,6 @@ deploy:
   on:
     tags: true
     python: 3.9
-
-PYPI_PASSWORD:
-  secure: jnSHzL95DHY/JJW6oTpVerdZN/VVJUoJ1cd4rKCzJvj4P8Iy9OIdndqjPS+CSyDD527Sr+h/1PYaDDNHH1kJ0TCO+TUiuMP/Mk5Tm+XZXHHVT5Syey5//UBhmVbC0p44oknP+6QIq0WFMYCw9EfXpK1yow7rMAq05MrCAihG7Lyzcj5vHvtXzQCugVse5A6dbVHprwvfKFvYLN8juCofonIlTQAr05IdlTCHzmi1iV0nkkdyFrgdjiUy3OidqI+9MfkY7cgEX69Sh6BDxCHZPDqEbzXvicg19DvhPOWM1uLOWEemeM7mv7apuBKf5ZvVISB/TQiI/bm5axMPwxYrshYaKhPyflA99s0XhkIJqwfYQk4NZ1Dj8nkoiKEyxKUUSXmlXhmHp6GHHDdQBK57zfb162Ra9AoK6q5qQ/aIdyxzW2V3ip7+RQJJ3tqSdhOph+meHHHVaQgn1ABgjJP82lv6Z1smpr1XYWPQ8C8JOuMtAy9kGfkV3lbh3HbJUzabCxmK8T/yiA6yT+OdE3AFV9CKjysxOyuPjSl17+zZkMyJmAX5P1Q2izpmZK6FfxtqCMJ35jLs7L8SkP3+2e+MOdIqqnpllvsj5rLfw0lIeEkyic0wMneLhd+WVON//OjhSGz3hi3Y8mQPabvMyWZ3BeQ8aWHGVsRwZpoGUtIOBzw=
+env:
+  global:
+    secure: dlCqScbSkzJFeCZJ2tgMhv+Y27InBfdfYnKu5Ky4gJH1IAxxa3Gk/S6GF4gcURH0miqMsx7sD87f+T9CHFWw5Q8yfGrUtcdQuQVXll0kChHvPb4i39TzaMRALW1GaTT05Z2S3Wwq+SutQoUgYu/gg6kBeHycnxyHHjDhUSTvB1XN8jDJdgxG9Ja2oPwsuQ9nPxTxLeRUfugLVKxl4UPq8v4m54GF/mXoXFo6NB8rqm2LytJn9hnQZpmPGthAsb7mBD7sqFErUxzsOc0tDoqsoyQMy7Wq2ymnRLoy1c8Txwkw9Q205Qh2Cff6+YMtsCUKiKHgHZow5KMQm/hB+2sM4Pbz6sxtSDrA1boUtuXNieCuAhR1YmJsCFgqFfCRZgVXfuqfnCqBXOjtfKEidBfZ4i5VdF4YRq1XZgKyHiVeaUcQcqbR1wehKVExkTHMy7AkhxXI71p+di03I+AiZcGGApo83ELRo2h8Sl3m7kY9l22h7BxpqBLo6p+RR+GQz+goLqb0ET8Pv12XnG4TvJ1x8JpHO8sFZav0WdaU6SsftJQ0dP+U0hRtn5+2592B9gWZnaeS+whztwceFysHRwxCbvNqLQiw8TAMw1x2anKiIUHSzpu2Edj7uP1aFgH9ZPuV2CNG+dDwj+8iW8mdKQ+1qYibTl1QifFLVpFTNPKf2jI=
