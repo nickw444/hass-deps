@@ -6,9 +6,13 @@ from typing import Callable, List
 import click
 
 from .dependency import (
-    Dependency, LockedDependency,
-    write_locked_dependencies, write_dependencies, load_locked_dependencies,
-    load_dependencies)
+    Dependency,
+    LockedDependency,
+    write_locked_dependencies,
+    write_dependencies,
+    load_locked_dependencies,
+    load_dependencies,
+)
 from .deps import install_dependency
 
 
@@ -24,16 +28,17 @@ class TypedObj:
 
 @click.group()
 @click.pass_context
-@click.option('--config-dir', type=click.Path(exists=True), default='./')
+@click.option("--config-dir", type=click.Path(exists=True), default="./")
 def cli(ctx, config_dir: str):
     dependencies_path = os.path.join(config_dir, "hass-deps.yaml")
     dependencies_lock_path = os.path.join(config_dir, "hass-deps.lock")
 
     dependencies = OrderedDict()
-    if ctx.invoked_subcommand != 'init':
+    if ctx.invoked_subcommand != "init":
         if not os.path.exists(dependencies_path):
             click.echo(
-                "'hass-deps.yaml' not found. Try running 'hass-deps init' first.")
+                "'hass-deps.yaml' not found. Try running 'hass-deps init' first."
+            )
             raise click.exceptions.Exit(1)
         dependencies = load_dependencies(dependencies_path)
 
@@ -42,19 +47,17 @@ def cli(ctx, config_dir: str):
         locked_dependencies = load_locked_dependencies(dependencies_lock_path)
 
     def write_dependencies_():
-        write_dependencies(
-            dependencies_path, ctx.obj.dependencies)
+        write_dependencies(dependencies_path, ctx.obj.dependencies)
 
     def write_locked_dependencies_():
-        write_locked_dependencies(
-            dependencies_lock_path, ctx.obj.locked_dependencies)
+        write_locked_dependencies(dependencies_lock_path, ctx.obj.locked_dependencies)
 
     ctx.obj = TypedObj(
         config_dir=config_dir,
         dependencies=dependencies,
         locked_dependencies=locked_dependencies,
         write_dependencies=write_dependencies_,
-        write_locked_dependencies=write_locked_dependencies_
+        write_locked_dependencies=write_locked_dependencies_,
     )
 
 
@@ -66,18 +69,14 @@ def init(obj: TypedObj):
 
 @cli.command(help="Add a new dependency")
 @click.pass_obj
-@click.option('--save/--no-save', type=bool, default=True)
+@click.option("--save/--no-save", type=bool, default=True)
 @click.argument("dependency")
 def add(obj: TypedObj, dependency: str, save: bool):
     if dependency in obj.dependencies:
         click.echo(f"{dependency} is already installed")
         raise click.exceptions.Exit(1)
 
-    dep = Dependency(
-        source=dependency,
-        root_is_custom_components=False,
-        include=None
-    )
+    dep = Dependency(source=dependency, root_is_custom_components=False, include=None)
     lock_info = install_dependency(obj.config_dir, dep, lock_info=None)
 
     obj.dependencies[dependency] = dep
@@ -90,15 +89,20 @@ def add(obj: TypedObj, dependency: str, save: bool):
 
 @cli.command(help="Install dependencies from hass-deps.yaml")
 @click.pass_obj
-@click.option('--force', help="Force reinstallation of all dependencies",
-              default=False, is_flag=True)
+@click.option(
+    "--force",
+    help="Force reinstallation of all dependencies",
+    default=False,
+    is_flag=True,
+)
 def install(obj: TypedObj, force: bool):
     should_write_locked_dependencies = False
 
     for dependency in obj.dependencies.values():
         lock_info = obj.locked_dependencies.get(dependency.source)
         updated_lock_info = install_dependency(
-            obj.config_dir, dependency, lock_info, force=force)
+            obj.config_dir, dependency, lock_info, force=force
+        )
 
         if lock_info is None:
             # Only update locked dependency if no lock was previously specified
@@ -111,7 +115,7 @@ def install(obj: TypedObj, force: bool):
 
 @cli.command(help="Upgrade dependencies to the latest version/release")
 @click.pass_obj
-@click.argument('dependencies', nargs=-1, metavar='dependency')
+@click.argument("dependencies", nargs=-1, metavar="dependency")
 def upgrade(obj: TypedObj, dependencies: List[str]):
     for dependency in dependencies:
         if dependency not in obj.dependencies:
@@ -130,5 +134,5 @@ def upgrade(obj: TypedObj, dependencies: List[str]):
     obj.write_locked_dependencies()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     cli()
