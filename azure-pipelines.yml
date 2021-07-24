@@ -23,7 +23,7 @@ steps:
 
 - script: |
     python -m pip install --upgrade pip
-    pip install pipenv
+    pip install pipenv twine
     pipenv install --system --dev
     pip install .
   displayName: 'Install dependencies'
@@ -31,5 +31,8 @@ steps:
 - script: |
     flake8 hass_deps
     black --check hass_deps
+  displayName: 'Check Formatting'
+
+- script: |
     mypy --strict hass_deps
-  displayName: 'check'
+  displayName: 'Check Types'
