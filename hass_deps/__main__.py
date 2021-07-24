@@ -27,6 +27,7 @@ class TypedObj:
 
 
 @click.group()
+@click.version_option()
 @click.pass_context
 @click.option("--config-dir", type=click.Path(exists=True), default="./")
 def cli(ctx: click.Context, config_dir: str) -> None:

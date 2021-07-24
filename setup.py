@@ -10,7 +10,6 @@ long_description = open(readme_path).read()
 
 setup(
     name='hass-deps',
-    version='1.0.3',
     packages=['hass_deps'],
     author="Nick Whyte",
     author_email='nick@nickwhyte.com',
