@@ -41,7 +41,7 @@ def find_github_releases_artifacts(
 
 
 def get_lovelace_destination_path(config_root_path: str, name: str) -> str:
-    return os.path.join(config_root_path, "www", name)
+    return os.path.join(config_root_path, "www/community", name)
 
 
 def install_lovelace_release_dependency(
@@ -58,7 +58,7 @@ def install_lovelace_release_dependency(
         )
         if os.path.isdir(destination_path):
             shutil.rmtree(destination_path)
-        os.mkdir(destination_path)
+        os.makedirs(destination_path, exist_ok=True)
 
         for artifact in github_artifacts:
             artifact_basename = os.path.basename(urlparse(artifact).path)
@@ -112,7 +112,7 @@ def install_lovelace_dependency(
             )
             if os.path.isdir(destination_path):
                 shutil.rmtree(destination_path)
-            os.mkdir(destination_path)
+            os.makedirs(destination_path, exist_ok=True)
 
             for artifact in source_artifacts:
                 artifact_basename = os.path.basename(artifact)

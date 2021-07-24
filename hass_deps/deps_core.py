@@ -29,6 +29,10 @@ def install_core_dependency(
     if not os.path.exists(custom_components_path):
         raise ArtifactNotFoundException()
 
+    custom_components_root_path = os.path.join(config_root_path, "custom_components")
+    if not os.path.exists(custom_components_root_path):
+        os.mkdir(custom_components_root_path)
+
     describe_result = subprocess.run(
         ["git", "describe", "--always"], cwd=cloned_path, stdout=subprocess.PIPE
     )
