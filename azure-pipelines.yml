@@ -27,6 +27,8 @@ strategy:
       python.version: '3.8'
     Python39:
       python.version: '3.9'
+    Python3x:
+      python.version: '3.x'
 
 steps:
 - task: UsePythonVersion@0
@@ -51,11 +53,11 @@ steps:
   displayName: 'Check Types'
 
 
-- task: TwineAuthenticate@1
-  inputs:
-    pythonUploadServiceConnection: 'hass-deps'
+- ${{ if and(eq(variables['python.version'], '3.x'), startsWith(variables['Build.SourceBranch'], 'refs/tags/')) }}:
+  - task: TwineAuthenticate@1
+    inputs:
+      pythonUploadServiceConnection: 'hass-deps'
 
-- script: |
-    python setup.py bdist_wheel
-    python -m twine upload -r 'hass-deps' --config-file $(PYPIRC_PATH) dist/*.whl
-  condition: and(succeeded(), eq(variables['python.version'], '3.9'), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+  - script: |
+      python setup.py bdist_wheel
+      python -m twine upload -r 'hass-deps' --config-file $(PYPIRC_PATH) dist/*.whl
