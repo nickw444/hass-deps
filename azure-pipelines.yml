@@ -53,10 +53,11 @@ steps:
 
 - task: TwineAuthenticate@1
   inputs:
-    pythonUploadServiceConnection: 'hass-deps'
+    pythonUploadServiceConnection: 'PyPi'
 
 - script: |
     python setup.py bdist_wheel
     python -m twine upload --config-file $(PYPIRC_PATH) dist/*.whl
   condition: and(succeeded(), eq(variables['python.version'], '3.9'))
   # condition: and(succeeded(), eq(variables['python.version'], '3.9'), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+  timeoutInMinutes: 2
