@@ -4,7 +4,12 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/python
 
 trigger:
-- master
+  branches:
+    include:
+      - master
+  tags:
+    include:
+      - '*'
 
 pool:
   vmImage: ubuntu-latest
@@ -23,7 +28,7 @@ steps:
 
 - script: |
     python -m pip install --upgrade pip
-    pip install pipenv twine
+    pip install pipenv twine wheel
     pipenv install --system --dev
     pip install .
   displayName: 'Install dependencies'
@@ -36,3 +41,12 @@ steps:
 - script: |
     mypy --strict hass_deps
   displayName: 'Check Types'
+
+- task: TwineAuthenticate@1
+  inputs:
+    artifactFeed: 'nickw444'
+
+- script: |
+    python setup.py bdist_wheel
+    python -m twine upload -r feedName --config-file $(PYPIRC_PATH) dist/*.whl
+  condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
