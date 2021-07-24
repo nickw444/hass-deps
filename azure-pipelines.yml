@@ -58,5 +58,5 @@ steps:
 
 - script: |
     python setup.py bdist_wheel
-    python -m twine upload -r feedName --config-file $(PYPIRC_PATH) dist/*.whl
+    python -m twine upload --config-file $(PYPIRC_PATH) dist/*.whl
   condition: and(succeeded(), eq(variables['python.version'], '3.9'), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
