@@ -52,7 +52,7 @@ steps:
     mypy --strict hass_deps
   displayName: 'Check Types'
 
-- ${{ if eq(variables['python.version'], '3.x') }}:
+- ${{ if eq(variables['Build.SourceBranch'], 'master') }}:
   - script: |
       echo "Conditional test"
     displayName: "Conditional test"
