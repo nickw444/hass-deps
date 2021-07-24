@@ -53,8 +53,7 @@ steps:
 
 - task: TwineAuthenticate@1
   inputs:
-    # artifactFeed: 'nickw444'
-    pythonUploadServiceConnection: 'nickw444-deploy hass-deps'
+    pythonUploadServiceConnection: 'hass-deps'
 
 - script: |
     python setup.py bdist_wheel
