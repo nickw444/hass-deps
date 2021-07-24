@@ -11,6 +11,14 @@ trigger:
     include:
       - '*'
 
+schedules:
+- cron: '0 3 * * 6'
+  displayName: "Weekly scheduled build"
+  branches:
+    include: 
+      - 'master'
+  always: true
+
 pool:
   vmImage: ubuntu-latest
 strategy:
