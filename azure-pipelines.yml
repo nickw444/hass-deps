@@ -52,6 +52,10 @@ steps:
     mypy --strict hass_deps
   displayName: 'Check Types'
 
+- ${{ if eq(variables['python.version'], '3.x') }}:
+  - script: |
+      echo "Conditional test"
+    displayName: "Conditional test"
 
 - ${{ if and(eq(variables['python.version'], '3.x'), startsWith(variables['Build.SourceBranch'], 'refs/tags/')) }}:
   - task: TwineAuthenticate@1
