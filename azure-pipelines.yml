@@ -58,6 +58,4 @@ steps:
 - script: |
     python setup.py bdist_wheel
     python -m twine upload -r 'hass-deps' --config-file $(PYPIRC_PATH) dist/*.whl
-  condition: and(succeeded(), eq(variables['python.version'], '3.9'))
-  # condition: and(succeeded(), eq(variables['python.version'], '3.9'), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
-  timeoutInMinutes: 2
+  condition: and(succeeded(), eq(variables['python.version'], '3.9'), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
