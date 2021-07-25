@@ -75,8 +75,14 @@ def init(obj: TypedObj) -> None:
 @click.option("--include", type=str, multiple=True)
 @click.option("--root-is-custom-components", type=bool, is_flag=True, default=False)
 @click.argument("dependency")
-def add(obj: TypedObj, dependency: str, save: bool, asset: List[str],
-        include: List[str], root_is_custom_components: bool) -> None:
+def add(
+    obj: TypedObj,
+    dependency: str,
+    save: bool,
+    asset: List[str],
+    include: List[str],
+    root_is_custom_components: bool,
+) -> None:
     if dependency in obj.dependencies:
         click.echo(f"{dependency} is already installed")
         raise click.exceptions.Exit(1)
@@ -85,7 +91,7 @@ def add(obj: TypedObj, dependency: str, save: bool, asset: List[str],
         source=dependency,
         root_is_custom_components=root_is_custom_components,
         include=list(include) or None,
-        assets=list(asset) or None
+        assets=list(asset) or None,
     )
     lock_info = install_dependency(obj.config_dir, dep, lock_info=None)
 
@@ -106,7 +112,7 @@ def add(obj: TypedObj, dependency: str, save: bool, asset: List[str],
     is_flag=True,
 )
 @click.option(
-    '--write-lovelace-resources/--no-write-lovelace-resources',
+    "--write-lovelace-resources/--no-write-lovelace-resources",
     default=False,
 )
 def install(obj: TypedObj, force: bool, write_lovelace_resources: bool) -> None:

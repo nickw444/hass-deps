@@ -76,8 +76,11 @@ def write_dependencies(path: str, dependencies: OrderedDict[str, Dependency]) ->
             str, Dict[str, Union[str, bool, List[str]]]
         ] = dependency.source
 
-        if dependency.include is not None or dependency.root_is_custom_components \
-                or dependency.assets is not None:
+        if (
+            dependency.include is not None
+            or dependency.root_is_custom_components
+            or dependency.assets is not None
+        ):
             # Has more advanced config, dump as an object
             dumpable_dep = {"source": dependency.source}
             if dependency.root_is_custom_components:
