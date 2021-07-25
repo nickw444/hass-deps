@@ -16,3 +16,6 @@ dependencies:
   - https://github.com/shenxn/ha-dyson.git
   - https://github.com/nickw444/deebot-t8-hass.git
   - https://github.com/kalkih/mini-media-player.git
+  - source: https://github.com/gurbyz/power-wheel-card.git
+    assets:
+      - power-wheel-card.js

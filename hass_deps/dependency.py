@@ -14,6 +14,11 @@ yaml = YAML()
 
 class Dependency(NamedTuple):
     source: str
+
+    # Directives for Lovelace
+    assets: Optional[List[str]]
+
+    # Directives for core dependencies
     root_is_custom_components: bool
     include: Optional[List[str]]
 
@@ -57,6 +62,7 @@ def load_dependencies(path: str) -> OrderedDict[str, Dependency]:
                 dep = {"source": dep}
             dependencies[dep["source"]] = Dependency(
                 source=dep["source"],
+                assets=dep.get("assets"),
                 root_is_custom_components=dep.get("root_is_custom_components", False),
                 include=dep.get("include"),
             )
@@ -70,13 +76,16 @@ def write_dependencies(path: str, dependencies: OrderedDict[str, Dependency]) ->
             str, Dict[str, Union[str, bool, List[str]]]
         ] = dependency.source
 
-        if dependency.include is not None or dependency.root_is_custom_components:
+        if dependency.include is not None or dependency.root_is_custom_components \
+                or dependency.assets is not None:
             # Has more advanced config, dump as an object
             dumpable_dep = {"source": dependency.source}
             if dependency.root_is_custom_components:
                 dumpable_dep["root_is_custom_components"] = True
             if dependency.include is not None:
                 dumpable_dep["include"] = dependency.include
+            if dependency.assets is not None:
+                dumpable_dep["assets"] = dependency.assets
 
         dumpable.append(dumpable_dep)
 
