@@ -71,13 +71,28 @@ def init(obj: TypedObj) -> None:
 @cli.command(help="Add a new dependency")
 @click.pass_obj
 @click.option("--save/--no-save", type=bool, default=True)
+@click.option("--asset", type=str, multiple=True)
+@click.option("--include", type=str, multiple=True)
+@click.option("--root-is-custom-components", type=bool, is_flag=True, default=False)
 @click.argument("dependency")
-def add(obj: TypedObj, dependency: str, save: bool) -> None:
+def add(
+    obj: TypedObj,
+    dependency: str,
+    save: bool,
+    asset: List[str],
+    include: List[str],
+    root_is_custom_components: bool,
+) -> None:
     if dependency in obj.dependencies:
         click.echo(f"{dependency} is already installed")
         raise click.exceptions.Exit(1)
 
-    dep = Dependency(source=dependency, root_is_custom_components=False, include=None)
+    dep = Dependency(
+        source=dependency,
+        root_is_custom_components=root_is_custom_components,
+        include=list(include) or None,
+        assets=list(asset) or None,
+    )
     lock_info = install_dependency(obj.config_dir, dep, lock_info=None)
 
     obj.dependencies[dependency] = dep
@@ -96,7 +111,11 @@ def add(obj: TypedObj, dependency: str, save: bool) -> None:
     default=False,
     is_flag=True,
 )
-def install(obj: TypedObj, force: bool) -> None:
+@click.option(
+    "--write-lovelace-resources/--no-write-lovelace-resources",
+    default=False,
+)
+def install(obj: TypedObj, force: bool, write_lovelace_resources: bool) -> None:
     should_write_locked_dependencies = False
 
     for dependency in obj.dependencies.values():

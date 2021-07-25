@@ -90,7 +90,10 @@ def install_lovelace_dependency(
     cloned_path: str,
 ) -> LockedDependency:
     hacs_json_path = os.path.join(cloned_path, "hacs.json")
-    if os.path.exists(hacs_json_path):
+    source_artifacts = []
+    if dependency.assets is not None:
+        source_artifacts = [os.path.join(cloned_path, x) for x in dependency.assets]
+    elif os.path.exists(hacs_json_path):
         hacs_config = json.load(open(hacs_json_path))
 
         if "filename" in hacs_config:
@@ -106,35 +109,35 @@ def install_lovelace_dependency(
             filter(lambda x: x.endswith(".map") or x.endswith(".js"), source_artifacts)
         )
 
-        if len(source_artifacts):
-            destination_path = get_lovelace_destination_path(
-                config_root_path, dependency.get_name()
-            )
-            if os.path.isdir(destination_path):
-                shutil.rmtree(destination_path)
-            os.makedirs(destination_path, exist_ok=True)
+    if len(source_artifacts):
+        destination_path = get_lovelace_destination_path(
+            config_root_path, dependency.get_name()
+        )
+        if os.path.isdir(destination_path):
+            shutil.rmtree(destination_path)
+        os.makedirs(destination_path, exist_ok=True)
 
-            for artifact in source_artifacts:
-                artifact_basename = os.path.basename(artifact)
-                artifact_destination_path = os.path.join(
-                    destination_path, artifact_basename
-                )
-                shutil.copy(artifact, artifact_destination_path)
-
-            describe_result = subprocess.run(
-                ["git", "describe", "--always"], cwd=cloned_path, stdout=subprocess.PIPE
+        for artifact in source_artifacts:
+            artifact_basename = os.path.basename(artifact)
+            artifact_destination_path = os.path.join(
+                destination_path, artifact_basename
             )
-            version = describe_result.stdout.decode("utf-8").strip()
-            with open(os.path.join(destination_path, ".hass-deps"), "w") as f:
-                json.dump({"version": version}, f)
+            shutil.copy(artifact, artifact_destination_path)
 
-            return LockedDependency(
-                source=dependency.source,
-                version=version,
-                is_release=False,
-                type="lovelace",
-                components=None,
-            )
+        describe_result = subprocess.run(
+            ["git", "describe", "--always"], cwd=cloned_path, stdout=subprocess.PIPE
+        )
+        version = describe_result.stdout.decode("utf-8").strip()
+        with open(os.path.join(destination_path, ".hass-deps"), "w") as f:
+            json.dump({"version": version}, f)
+
+        return LockedDependency(
+            source=dependency.source,
+            version=version,
+            is_release=False,
+            type="lovelace",
+            components=None,
+        )
 
     # No source candidates found, try check Github Releases.
     return install_lovelace_release_dependency(config_root_path, dependency, None)
