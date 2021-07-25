@@ -70,15 +70,12 @@ jobs:
           PathtoPublish: 'dist/'
           ArtifactName: 'dist'
           publishLocation: 'Container'
-        # Only publish artifacts from Python latest build.
-        condition: eq(variables['python.version'], '3.x')
         displayName: "Publish Build Artifact"
   - job: release
     dependsOn:
       - build
       - check
     displayName: "Release"
-    condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
     steps:
       - ${{ parameters.step_install_dependencies }}
       - task: TwineAuthenticate@1
