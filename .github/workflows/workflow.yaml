@@ -44,7 +44,7 @@ jobs:
           python -m pip install .
       - name: "Build"
         run: |
-          sed -i "s/0.0.0-dev/$(git describe --exact-match)/" hass_deps/__init__.py
+          sed -i "s/0.0.0-dev/$(git describe --tags --exact-match)/" hass_deps/__init__.py
           python setup.py bdist_wheel
       - uses: actions/upload-artifact@v2
         # Only publish artifacts from Python latest build.
@@ -52,6 +52,7 @@ jobs:
         with:
           name: dist
           path: dist/
+          if-no-files-found: error
 
   release:
     name: "Release 🚀"
@@ -61,13 +62,10 @@ jobs:
       - check
     if: startsWith(github.ref, 'refs/tags')
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-        with:
-          python-version: "3.x"
       - uses: actions/download-artifact@v2
         with:
           name: dist
+          path: dist/
       - name: Release to PyPi 📦
         if:
         uses: pypa/gh-action-pypi-publish@master
