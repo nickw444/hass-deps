@@ -45,7 +45,7 @@ jobs:
       - name: "Build"
         run: |
           sed -i "s/0.0.0-dev/$(git describe --tags --exact-match)/" hass_deps/__init__.py
-          python setup.py bdist_wheel
+          python setup.py sdist bdist_wheel
       - uses: actions/upload-artifact@v2
         # Only publish artifacts from Python latest build.
         if: ${{ matrix.python-version == '3.x' }}
